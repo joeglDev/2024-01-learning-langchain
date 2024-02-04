@@ -1,10 +1,12 @@
 from langchain_community.llms.ollama import Ollama
 from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.prompts import ChatPromptTemplate
 
 
 class Chatbot:
-    def __init__(self, model: Ollama):
+    def __init__(self, model: Ollama, system: ChatPromptTemplate):
         self.Model = model
+        self.System = system
         self.History: list[dict[str, str]] = []
 
     def get_completion(self, prompt: str):

@@ -11,26 +11,27 @@ class Chatbot:
 
     def get_completion(self, prompt: str):
         """Gets a basic chat completion with chat history"""
-        if len(self.History) > 0:
-            model_input = [
+        chain = self.System | self.Model
+        model_input = {
+            "messages": [
                 HumanMessage(content=prompt),
             ]
+        }
+
+        if len(self.History) > 0:
             for chat_round in self.History:
+                chat_history = model_input["messages"]
                 ai = AIMessage(content=chat_round["completion"])
                 human = HumanMessage(content=chat_round["prompt"])
-                model_input.append(ai)
-                model_input.append(human)
+                chat_history.append(ai)
+                chat_history.append(human)
 
-            completion: str = self.Model.invoke(model_input)
+            completion: str = chain.invoke(model_input)
             self.create_chat_history(prompt, completion)
             print(f"Output: {completion}")
 
         else:
-            model_input = [
-                HumanMessage(content=prompt),
-            ]
-
-            completion: str = self.Model.invoke(model_input)
+            completion: str = chain.invoke(model_input)
             self.create_chat_history(prompt, completion)
             print(f"Output: {completion}")
 
@@ -38,3 +39,7 @@ class Chatbot:
         """Appends prompt and completion to chat history"""
         chat_round = {"prompt": prompt, "completion": completion}
         self.History.append(chat_round)
+
+    def get_history(self) -> list[dict[str, str]]:
+        """Returns chat history"""
+        return self.History

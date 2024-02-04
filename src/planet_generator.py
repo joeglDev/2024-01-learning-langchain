@@ -2,7 +2,7 @@
 
 from math import pi
 from random import choice
-from basic_llm import BasicLlm
+from src.classes.basic_llm import BasicLlm
 
 
 llm = BasicLlm()

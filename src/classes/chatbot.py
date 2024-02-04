@@ -7,10 +7,8 @@ class Chatbot:
         self.Model = model
         self.History: list[dict[str, str]] = []
 
-    def get_completion(self):
+    def get_completion(self, prompt: str):
         """Gets a basic chat completion with chat history"""
-        prompt = input("Please enter a prompt:")
-
         if len(self.History) > 0:
             model_input = [
                 HumanMessage(content=prompt),
@@ -20,8 +18,6 @@ class Chatbot:
                 human = HumanMessage(content=chat_round["prompt"])
                 model_input.append(ai)
                 model_input.append(human)
-
-            print("input", model_input)
 
             completion: str = self.Model.invoke(model_input)
             self.create_chat_history(prompt, completion)

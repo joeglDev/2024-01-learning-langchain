@@ -3,12 +3,13 @@ from langchain_community.llms.ollama import Ollama
 from src.classes.chatbot import Chatbot
 
 chat = Chatbot(model=Ollama(model="orca-mini"))
+CONTINUE_CHAT = True
 
-# first completion so no history
-chat.get_completion()
-
-# second completion so has history
-chat.get_completion()
-
-# third completion so has history
-chat.get_completion()
+while CONTINUE_CHAT:
+    should_continue_chat = input("Y = continue chat, N = end chat")
+    if should_continue_chat.lower() == "y":
+        prompt = input("Please enter a prompt:")
+        chat.get_completion(prompt)
+    else:
+        CONTINUE_CHAT = False
+        print("The chat has ended.")

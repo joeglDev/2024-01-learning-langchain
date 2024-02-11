@@ -13,15 +13,18 @@ system_prompt = ChatPromptTemplate.from_messages(
         MessagesPlaceholder(variable_name="messages"),
     ]
 )
-chat = Chatbot(model=Ollama(model="orca-mini"), system=system_prompt)
+chat = Chatbot(model=Ollama(model="mistral"), system=system_prompt)
 
 CONTINUE_CHAT = True
 
+print("Type 'goodbye' to end the chat.")
+
 while CONTINUE_CHAT:
-    should_continue_chat = input("Y = continue chat, N = end chat")
-    if should_continue_chat.strip().lower() == "y":
-        prompt = input("Please enter a prompt:")
-        chat.get_completion(prompt)
+    prompt = input("Please enter your prompt:")
+    if prompt.strip().lower() != "goodbye":
+        completion = chat.get_completion(prompt)
+        print(f"Output: {completion}")
+
     else:
         CONTINUE_CHAT = False
         log = chat.get_history()

@@ -12,6 +12,7 @@ class Chatbot:
     def get_completion(self, prompt: str):
         """Gets a basic chat completion with chat history"""
 
+        print("Thinking...")
         chain = self.System | self.Model
         self.History.add_user_message(prompt)
 

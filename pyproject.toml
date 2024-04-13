@@ -2,21 +2,19 @@
 name = "2024-01-langchain-learning"
 version = "0.1.0"
 description = ""
-authors = ["hiroji"]
-readme = "README.md"
+authors = ["Your Name <you@example.com>"]
+license = "n"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-langchain = "^0.1.0"
-black = "^23.12.1"
-pylint = "^3.0.3"
-langchain-experimental = "^0.0.49"
-tabulate = "^0.9.0"
+pandas = "^2.2.1"
+bs4 = "^0.0.2"
 html2text = "^2024.2.26"
 tqdm = "^4.66.2"
-bs4 = "^0.0.2"
+tabulate = "^0.9.0"
 
+[tool.poetry.dev-dependencies]
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

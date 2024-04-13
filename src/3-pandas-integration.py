@@ -4,7 +4,7 @@ import pandas as pd
 from langchain_community.llms import Ollama  # pylint: disable=E0611
 from langchain_experimental.agents import create_pandas_dataframe_agent
 
-DATAFRAME_PATH = "/src/data/example_csv.csv"
+DATAFRAME_PATH = "/data/example_csv.csv"
 llm = Ollama(model="mistral")  # needs a more powerful model to work correctly
 
 

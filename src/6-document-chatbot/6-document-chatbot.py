@@ -7,7 +7,6 @@ from langchain_community.llms.ollama import Ollama
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import (
-    MessagesPlaceholder,
     ChatPromptTemplate,
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate,
@@ -15,23 +14,11 @@ from langchain_core.prompts import (
 from langchain_core.runnables import RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from src.classes.chatbot import Chatbot
-from prompts import initial_prompt, SYSTEM_TEMPLATE
+from prompts import SYSTEM_TEMPLATE
 from src.classes.document_loader import DocumentLoader
 
 # Create LLM
 llm = Ollama(model="orca-mini")
-
-system_prompt = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            initial_prompt,
-        ),
-        MessagesPlaceholder(variable_name="messages"),
-    ]
-)
-chat = Chatbot(model=llm, system=system_prompt)
 
 # Extract document content
 print("Reading document")
@@ -76,6 +63,7 @@ chain = (
     | StrOutputParser()
 )
 
+print('Generating LLM response')
 response = chain.invoke(question)
 print(response)
 # cleanup

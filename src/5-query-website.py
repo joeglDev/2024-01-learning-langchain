@@ -4,8 +4,8 @@ from src.classes.chatbot import Chatbot
 from src.classes.webscrapers import Webscrapers
 
 
-url = input('Please enter a website url here:')
-query = input('Please enter your question here:')
+url = input("Please enter a website url here:")
+query = input("Please enter your question here:")
 print(f"Query: {url} -> {query}")
 
 web = Webscrapers()

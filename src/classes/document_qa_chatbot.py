@@ -98,6 +98,9 @@ class DocumentQaChatbot:
                 completion = self.get_completion(question)
                 print(f"Output: {completion['answer']}")
                 print()
+                for doc in completion["context"]:
+                    print(f"Source: {doc.page_content}")
+                print()
 
     def create_chain(self):
         # handle question answer history

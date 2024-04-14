@@ -9,7 +9,7 @@ from prompts import SYSTEM_TEMPLATE
 from src.classes.document_qa_chatbot import DocumentQaChatbot
 
 
-llm = llm = Ollama(model="orca-mini")
+llm = Ollama(model="orca-mini")
 
 messages = [
     SystemMessagePromptTemplate.from_template(SYSTEM_TEMPLATE),

@@ -1,5 +1,4 @@
 import os
-from typing import Tuple
 
 from langchain_community.chat_message_histories.in_memory import ChatMessageHistory
 from langchain_community.embeddings.sentence_transformer import (
@@ -11,7 +10,6 @@ from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableSerializable, RunnablePassthrough
-from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from src.classes.document_loader import DocumentLoader
@@ -24,8 +22,6 @@ class DocumentQaChatbot:
         self.prompt: ChatPromptTemplate = prompt
         self.History: ChatMessageHistory = ChatMessageHistory()
         self.CONTINUE_CHAT = True
-        self.document_retriever: VectorStoreRetriever | None = None
-        self.vectorstore: Chroma | None = None
         self.chain: RunnableSerializable[str, str] | None = None
 
     def load_document(self) -> list[Document]:
@@ -38,7 +34,7 @@ class DocumentQaChatbot:
 
     def create_vectorstore(
         self, docs: list[Document]
-    ) -> Tuple[VectorStoreRetriever, Chroma]:
+    ) -> Chroma:
         print("Creating vectorstore")
 
         text_splitter = RecursiveCharacterTextSplitter(
@@ -52,9 +48,8 @@ class DocumentQaChatbot:
         vectorstore = Chroma.from_documents(
             documents=splits, embedding=embedding_function
         )
-        retriever = vectorstore.as_retriever()
 
-        return retriever, vectorstore
+        return vectorstore
 
     def format_docs(self, docs: list[Document]) -> str:
         page_content = "\n\n".join(doc.page_content for doc in docs)
@@ -92,12 +87,10 @@ class DocumentQaChatbot:
 
     def run(self):
         docs = self.load_document()
-        retriever, vectorstore = self.create_vectorstore(docs)
-        self.document_retriever = retriever
-        self.vectorstore = vectorstore
+        vectorstore = self.create_vectorstore(docs)
 
         chain = (
-            {"context": retriever | self.format_docs, "question": RunnablePassthrough()}
+            {"context": vectorstore.as_retriever() | self.format_docs, "question": RunnablePassthrough()}
             | self.prompt
             | self.llm
             | StrOutputParser()

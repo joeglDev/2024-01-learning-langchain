@@ -1,5 +1,8 @@
 import os
 
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.chains.history_aware_retriever import create_history_aware_retriever
+from langchain.chains.retrieval import create_retrieval_chain
 from langchain_community.chat_message_histories.in_memory import ChatMessageHistory
 from langchain_community.embeddings.sentence_transformer import (
     SentenceTransformerEmbeddings,
@@ -7,22 +10,32 @@ from langchain_community.embeddings.sentence_transformer import (
 from langchain_community.llms.ollama import Ollama
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.documents import Document
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnableSerializable, RunnablePassthrough
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables import RunnableSerializable
+from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+
 from src.classes.document_loader import DocumentLoader
+from src.document_chatbot.prompts import QA_SYSTEM_PROMPT
 
 
 class DocumentQaChatbot:
-    def __init__(self, llm: Ollama, file_path: str, prompt: ChatPromptTemplate):
+    def __init__(
+        self,
+        llm: Ollama,
+        file_path: str,
+        prompt: ChatPromptTemplate,
+        qa_prompt: ChatPromptTemplate,
+    ):
         self.llm = llm
         self.file_path: str = file_path
         self.prompt: ChatPromptTemplate = prompt
+        self.qa_prompt: ChatPromptTemplate = qa_prompt
         self.History: ChatMessageHistory = ChatMessageHistory()
         self.CONTINUE_CHAT = True
         self.chain: RunnableSerializable[str, str] | None = None
+        self.retriever: VectorStoreRetriever | None = None
 
     def load_document(self) -> list[Document]:
         print("Reading document")
@@ -32,9 +45,7 @@ class DocumentQaChatbot:
         docs = loader.run()
         return docs
 
-    def create_vectorstore(
-        self, docs: list[Document]
-    ) -> Chroma:
+    def create_vectorstore(self, docs: list[Document]) -> Chroma:
         print("Creating vectorstore")
 
         text_splitter = RecursiveCharacterTextSplitter(
@@ -59,14 +70,16 @@ class DocumentQaChatbot:
         """Returns chat history"""
         return self.History.messages
 
-    def get_completion(self, prompt: str):
+    def get_completion(self, question: str) -> dict:
         """Gets a basic chat completion with chat history"""
 
         print("Generating response...")
-        self.History.add_user_message(prompt)
+        self.History.add_user_message(question)
 
-        completion: str = self.chain.invoke(prompt)
-        self.History.add_ai_message(completion)
+        completion: dict = self.chain.invoke(
+            {"input": question, "chat_history": self.get_history()}
+        )
+        self.History.add_ai_message(completion["answer"])
 
         return completion
 
@@ -83,19 +96,36 @@ class DocumentQaChatbot:
                 print(log)
             else:
                 completion = self.get_completion(question)
-                print(f"Output: {completion}")
+                print(f"Output: {completion['answer']}")
+                print()
+
+    def create_chain(self):
+        # handle question answer history
+        # prepends a rephrasing of the input query to our retriever, so that the retrieval incorporates the context of the conversation
+        history_aware_retriever = create_history_aware_retriever(
+            self.llm, self.retriever, self.qa_prompt
+        )
+
+        # create qa chain
+        qa_prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", QA_SYSTEM_PROMPT),
+                MessagesPlaceholder("chat_history"),
+                ("human", "{input}"),
+            ]
+        )
+
+        question_answer_chain = create_stuff_documents_chain(self.llm, qa_prompt)
+
+        chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
+
+        self.chain = chain
 
     def run(self):
         docs = self.load_document()
         vectorstore = self.create_vectorstore(docs)
-
-        chain = (
-            {"context": vectorstore.as_retriever() | self.format_docs, "question": RunnablePassthrough()}
-            | self.prompt
-            | self.llm
-            | StrOutputParser()
-        )
-        self.chain = chain
+        self.retriever = vectorstore.as_retriever()
+        self.create_chain()
 
         self.chat()
 

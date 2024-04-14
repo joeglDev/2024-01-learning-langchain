@@ -99,7 +99,7 @@ class DocumentQaChatbot:
                 print(f"Output: {completion['answer']}")
                 print()
                 for doc in completion["context"]:
-                    print(f"Source: {doc.page_content}")
+                    print(f"Source: {doc}")
                 print()
 
     def create_chain(self):

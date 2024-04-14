@@ -10,7 +10,7 @@ from prompts import SYSTEM_TEMPLATE, CONTEXTUALIZED_QA_SYSTEM_PROMPT
 from src.classes.document_qa_chatbot import DocumentQaChatbot
 
 
-llm = Ollama(model="orca-mini")
+llm = Ollama(model="mistral")
 
 messages = [
     SystemMessagePromptTemplate.from_template(SYSTEM_TEMPLATE),

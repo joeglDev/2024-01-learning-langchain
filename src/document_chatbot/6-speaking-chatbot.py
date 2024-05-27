@@ -1,17 +1,18 @@
 from langchain_community.llms.ollama import Ollama
 from langchain_core.prompts import MessagesPlaceholder, ChatPromptTemplate
 
-from src.classes.chatbots.chatbot import Chatbot
+from src.classes.chatbots.SpeakingChatbot import SpeakingChatbot
+from src.classes.chatbots.prompts import SYX_SYSTEM_PROMPT
 
 # setup large language model parameters
 system_prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            "Your name is Anakin Skywalker.",
+            SYX_SYSTEM_PROMPT,
         ),
         MessagesPlaceholder(variable_name="messages"),
     ]
 )
-chat = Chatbot(model=Ollama(model="orca-mini"), system=system_prompt)
+chat = SpeakingChatbot(model=Ollama(model="mistral"), system=system_prompt)
 chat.run()

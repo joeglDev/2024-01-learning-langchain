@@ -361,7 +361,7 @@ python-versions = ">=3"
 
 [[package]]
 name = "packaging"
-version = "24.0"
+version = "23.2"
 description = "Core utilities for Python packages"
 category = "main"
 optional = false

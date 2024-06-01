@@ -13,5 +13,5 @@ system_prompt = ChatPromptTemplate.from_messages(
         MessagesPlaceholder(variable_name="messages"),
     ]
 )
-chat = SpeakingChatbot(model=Ollama(model="syx"), system=system_prompt)
+chat = SpeakingChatbot(model=Ollama(model="orca-mini"), system=system_prompt)
 chat.run()

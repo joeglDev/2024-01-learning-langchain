@@ -1,10 +1,7 @@
-import torch
-from TTS.api import TTS
-
 from langchain_community.llms.ollama import Ollama
 from langchain_core.prompts import ChatPromptTemplate
-from playsound import playsound
 
+from src.classes.SpeechSynthesis import SpeechSynthesis
 from src.classes.chatbots.chatbot import Chatbot
 
 
@@ -13,32 +10,14 @@ class SpeakingChatbot(Chatbot):
         super().__init__(model, system)
 
     def speak_completion(self, completion: str):
-        # todo convert this funct into a dedicated TTS class handler
+        """Speak completion using SpeechSynthesis class"""
 
-        # Get device
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-
-        # Init TTS
-        tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(device)
-
-        # Run TTS
-        # ❗ Since this model is multi-lingual voice cloning model, we must set the target speaker_wav and language
-        # Text to speech list of amplitude values as output
-        print("Generating voice")
-        wav = tts.tts(text=completion, speaker="Ana Florence", language="en")
-        # todo convert list of amplitude values into .wav and play audio
-        # Play the generated audio file
-        # Generate speech by cloning a voice using default settings
-        wav = tts.tts_to_file(
-            text=completion,
-            file_path="./output.wav",
-            speaker="Ana Florence",
-            language="en",
-            split_sentences=True,
+        # Baldur Sanjin    Viktor Eka
+        tts_model = "tts_models/multilingual/multi-dataset/xtts_v2"
+        speech = SpeechSynthesis(
+            tts_model=tts_model, speaker="Baldur Sanjin", language="en"
         )
-
-        # play audio from file
-        playsound("./output.wav")
+        speech.run(completion)
 
     def get_completion(self, prompt: str):
         """Gets a basic chat completion with chat history"""

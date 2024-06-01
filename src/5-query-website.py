@@ -1,6 +1,6 @@
 from langchain_community.llms.ollama import Ollama
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from src.classes.chatbot import Chatbot
+from src.classes.chatbots.chatbot import Chatbot
 from src.classes.webscrapers import Webscrapers
 
 

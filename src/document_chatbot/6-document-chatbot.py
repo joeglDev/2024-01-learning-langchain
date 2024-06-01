@@ -6,8 +6,11 @@ from langchain_core.prompts import (
     MessagesPlaceholder,
 )
 
-from prompts import SYSTEM_TEMPLATE, CONTEXTUALIZED_QA_SYSTEM_PROMPT
-from src.classes.document_qa_chatbot import DocumentQaChatbot
+from src.document_chatbot.prompts import (
+    SYSTEM_TEMPLATE,
+    CONTEXTUALIZED_QA_SYSTEM_PROMPT,
+)
+from src.classes.chatbots.document_qa_chatbot import DocumentQaChatbot
 
 
 llm = Ollama(model="mistral")

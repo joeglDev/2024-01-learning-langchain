@@ -9,13 +9,16 @@ import sounddevice as sd
 from scipy.io.wavfile import write
 
 
+# todo: microphone input lasts as long as user is speaking
+# todo: better audio model for speech to text or spelling correction
+# todo: function to clean up input audio
 class SpeechToText:
     def __init__(self):
         self.path = (
                 os.path.dirname(os.path.abspath(__file__)) + "/../../data/input_audio/input.wav"
         )
 
-    def record_audio_to_file(self):
+    def _record_audio_to_file(self):
         # todo: end when stop talking not at 5 secs
 
         # Sampling frequency
@@ -38,15 +41,13 @@ class SpeechToText:
         # file with the given sampling frequency
         write(self.path, freq, recording)
 
-        # Convert the NumPy array to audio file
-        #wv.write("input1.wav", recording, freq, sampwidth=2)
 
-    def load_audio_from_file(self) -> tuple[Tensor, int]:
+    def _load_audio_from_file(self) -> tuple[Tensor, int]:
         waveform, sample_rate = torchaudio.load(self.path)
         print(f"Original sample rate: {sample_rate}")
         return waveform, sample_rate
 
-    def resample_audio(self, waveform: Tensor, original_sample_rate: int) -> tuple[Tensor, int]:
+    def _resample_audio(self, waveform: Tensor, original_sample_rate: int) -> tuple[Tensor, int]:
         new_sample_rate = 16000
         print(f"Resampling audio to {new_sample_rate}hz")
 
@@ -54,12 +55,12 @@ class SpeechToText:
         waveform = resampler(waveform)
         return waveform, new_sample_rate
 
-    def preprocess_audio(self, waveform: Tensor, sample_rate: int):
+    def _preprocess_audio(self, waveform: Tensor, sample_rate: int):
         print('Preprocessing audio')
         mfcc_transform = torchaudio.transforms.MFCC(sample_rate=sample_rate)
         mfcc_transform(waveform)
 
-    def transcribe_audio(self, resampled_waveform: Tensor) -> str:
+    def _transcribe_audio(self, resampled_waveform: Tensor) -> str:
         print('Transcribing audio')
         # Load pre-trained model
         model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-base-960h")
@@ -75,20 +76,19 @@ class SpeechToText:
         return transcript
 
     def run(self) -> str:
-        self.record_audio_to_file()
+        self._record_audio_to_file()
 
-        waveform, sample_rate = self.load_audio_from_file()
-        resampled_waveform, new_sample_rate = self.resample_audio(waveform, sample_rate)
+        waveform, sample_rate = self._load_audio_from_file()
+        resampled_waveform, new_sample_rate = self._resample_audio(waveform, sample_rate)
 
-        self.preprocess_audio(resampled_waveform, new_sample_rate)
+        self._preprocess_audio(resampled_waveform, new_sample_rate)
 
-        transcript = self.transcribe_audio(resampled_waveform)
+        transcript = self._transcribe_audio(resampled_waveform)
         first_transcript = transcript[0]
 
         print('Transcript: ', first_transcript)
         return first_transcript
 
 
-
-pipeline = SpeechToText()
-pipeline.run()
+# pipeline = SpeechToText()
+# pipeline.run()

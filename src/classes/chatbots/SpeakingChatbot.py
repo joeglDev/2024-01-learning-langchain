@@ -2,12 +2,11 @@ from langchain_community.llms.ollama import Ollama
 from langchain_core.prompts import ChatPromptTemplate
 
 from src.classes.audio_processing.SpeechSynthesis import SpeechSynthesis
+from src.classes.audio_processing.SpeechToText import SpeechToText
 from src.classes.chatbots.chatbot import Chatbot
 
 
-# todo: microphone input lasts as long as user is speaking
-# todo: better audio model for speech to text or spelling correction
-# todo: function to clean up input audio
+# todo: run loop where runs continueally looking for audio
 class SpeakingChatbot(Chatbot):
     def __init__(self, model: Ollama, system: ChatPromptTemplate):
         super().__init__(model, system)
@@ -37,3 +36,24 @@ class SpeakingChatbot(Chatbot):
         self.speak_completion(completion)
 
         return completion
+
+    def run(self):
+        print("Type 'y' and speak to chat.")
+        print("Type 'n' to end the chat.")
+
+        while self.continue_chat:
+            user_keystroke = input("Continue chatting?")
+            if user_keystroke.strip().lower() == "y":
+                handle_speech_to_text = SpeechToText()
+                prompt = handle_speech_to_text.run()
+                completion = self.get_completion(prompt)
+                print(f"Output: {completion}")
+
+            else:
+                self.continue_chat = False
+                log = self.get_history()
+                print("The chat has ended.")
+                print("Chat log:")
+                print(f"Length of chat: {len(log)}")
+                print(log)
+

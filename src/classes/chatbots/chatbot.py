@@ -1,3 +1,7 @@
+import json
+import os
+from datetime import datetime
+
 from langchain_community.chat_message_histories.in_memory import ChatMessageHistory
 from langchain_community.llms.ollama import Ollama
 from langchain_core.prompts import ChatPromptTemplate
@@ -28,6 +32,19 @@ class Chatbot:
         """Returns chat history"""
         return self.History.messages
 
+    def _write_logs_to_file(self, log: list[dict[str, str]]):
+        current_datetime = datetime.now()
+        file_name = f"{current_datetime}_log.txt"
+        log_path = (
+            os.path.dirname(os.path.abspath(__file__)) + f"/../../data/logs/{file_name}"
+        )
+
+        content = json.dumps(str(log))
+
+        f = open(log_path, "w")
+        f.write(content)
+        f.close()
+
     def run(self):
         print("Type 'goodbye' to end the chat.")
 
@@ -44,3 +61,4 @@ class Chatbot:
                 print("Chat log:")
                 print(f"Length of chat: {len(log)}")
                 print(log)
+                self._write_logs_to_file()

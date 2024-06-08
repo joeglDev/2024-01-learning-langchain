@@ -32,7 +32,7 @@ class AudioRecorder:
             frames_per_buffer=self.chunk,
         )
 
-    def rms(self, frame) -> float:
+    def _rms(self, frame) -> float:
         count = len(frame) / self.swidth
         format = "%dh" % count
         shorts = struct.unpack(format, frame)
@@ -46,7 +46,7 @@ class AudioRecorder:
 
         return value
 
-    def record(self):
+    def _record(self):
         print("Noise detected, recording beginning")
         rec = []
         current = time.time()
@@ -55,14 +55,14 @@ class AudioRecorder:
         while current <= end:
 
             data = self.stream.read(self.chunk)
-            if self.rms(data) >= self.threshold:
+            if self._rms(data) >= self.threshold:
                 end = time.time() + self.timeout_length
 
             current = time.time()
             rec.append(data)
-        self.write(b"".join(rec))
+        self._write(b"".join(rec))
 
-    def write(self, recording):
+    def _write(self, recording):
         wf = wave.open(self.path, "wb")
         wf.setnchannels(self.channels)
         wf.setsampwidth(self.p.get_sample_size(self.format))
@@ -74,8 +74,8 @@ class AudioRecorder:
         print("Listening...")
         while self.CONTINUE:
             input = self.stream.read(self.chunk)
-            rms_val = self.rms(input)
+            rms_val = self._rms(input)
             # print('Current noise', rms_val)
             if rms_val > self.threshold:
-                self.record()
+                self._record()
                 self.CONTINUE = False

@@ -13,7 +13,7 @@ class SpeechSynthesis:
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.tts = TTS(self.tts_model).to(self.device)
         self.path = (
-            os.path.dirname(os.path.abspath(__file__)) + "/../data/audio/output.wav"
+            os.path.dirname(os.path.abspath(__file__)) + "/../../data/audio/output.wav"
         )
 
     def _synthesise_speech(self, completion: str):

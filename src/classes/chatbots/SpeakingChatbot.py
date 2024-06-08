@@ -1,10 +1,13 @@
 from langchain_community.llms.ollama import Ollama
 from langchain_core.prompts import ChatPromptTemplate
 
-from src.classes.SpeechSynthesis import SpeechSynthesis
+from src.classes.audio_processing.SpeechSynthesis import SpeechSynthesis
 from src.classes.chatbots.chatbot import Chatbot
 
 
+# todo: microphone input lasts as long as user is speaking
+# todo: better audio model for speech to text or spelling correction
+# todo: function to clean up input audio
 class SpeakingChatbot(Chatbot):
     def __init__(self, model: Ollama, system: ChatPromptTemplate):
         super().__init__(model, system)

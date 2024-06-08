@@ -43,4 +43,3 @@ class SpeechSynthesis:
         self._synthesise_speech(completion)
         self._speak()
         self._clean_file()
-

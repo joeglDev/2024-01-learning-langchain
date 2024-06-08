@@ -6,7 +6,7 @@ from src.classes.audio_processing.SpeechToText import SpeechToText
 from src.classes.chatbots.chatbot import Chatbot
 
 
-# todo: run loop where runs continueally looking for audio
+# todo: transcribe log to text file
 class SpeakingChatbot(Chatbot):
     def __init__(self, model: Ollama, system: ChatPromptTemplate):
         super().__init__(model, system)
@@ -56,4 +56,3 @@ class SpeakingChatbot(Chatbot):
                 print("Chat log:")
                 print(f"Length of chat: {len(log)}")
                 print(log)
-

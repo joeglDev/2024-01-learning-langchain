@@ -5,15 +5,17 @@ import wave
 import time
 import os
 
+
 # Note: needs sudo apt install portaudio19-dev
 class AudioRecorder:
     def __init__(self):
         self.path = (
-                os.path.dirname(os.path.abspath(__file__)) + "/../../data/input_audio/input.wav"
+            os.path.dirname(os.path.abspath(__file__))
+            + "/../../data/input_audio/input.wav"
         )
         self.CONTINUE = True
         self.threshold = 100
-        self.short_normalize = (1.0 / 32768.0)
+        self.short_normalize = 1.0 / 32768.0
         self.chunk = 1024
         self.format = pyaudio.paInt16
         self.channels = 1
@@ -21,12 +23,14 @@ class AudioRecorder:
         self.swidth = 2
         self.timeout_length = 3
         self.p = pyaudio.PyAudio()
-        self.stream = self.p.open(format=self.format,
-                                  channels=self.channels,
-                                  rate=self.rate,
-                                  input=True,
-                                  output=True,
-                                  frames_per_buffer=self.chunk)
+        self.stream = self.p.open(
+            format=self.format,
+            channels=self.channels,
+            rate=self.rate,
+            input=True,
+            output=True,
+            frames_per_buffer=self.chunk,
+        )
 
     def rms(self, frame) -> float:
         count = len(frame) / self.swidth
@@ -43,7 +47,7 @@ class AudioRecorder:
         return value
 
     def record(self):
-        print('Noise detected, recording beginning')
+        print("Noise detected, recording beginning")
         rec = []
         current = time.time()
         end = time.time() + self.timeout_length
@@ -51,14 +55,15 @@ class AudioRecorder:
         while current <= end:
 
             data = self.stream.read(self.chunk)
-            if self.rms(data) >= self.threshold: end = time.time() + self.timeout_length
+            if self.rms(data) >= self.threshold:
+                end = time.time() + self.timeout_length
 
             current = time.time()
             rec.append(data)
-        self.write(b''.join(rec))
+        self.write(b"".join(rec))
 
     def write(self, recording):
-        wf = wave.open(self.path, 'wb')
+        wf = wave.open(self.path, "wb")
         wf.setnchannels(self.channels)
         wf.setsampwidth(self.p.get_sample_size(self.format))
         wf.setframerate(self.rate)
@@ -66,7 +71,7 @@ class AudioRecorder:
         wf.close()
 
     def listen(self):
-        print('Listening...')
+        print("Listening...")
         while self.CONTINUE:
             input = self.stream.read(self.chunk)
             rms_val = self.rms(input)
@@ -74,4 +79,3 @@ class AudioRecorder:
             if rms_val > self.threshold:
                 self.record()
                 self.CONTINUE = False
-

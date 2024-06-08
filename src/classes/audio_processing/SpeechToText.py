@@ -5,8 +5,7 @@ import torch
 import torchaudio
 from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
 
-import sounddevice as sd
-from scipy.io.wavfile import write
+from src.classes.audio_processing.AudioRecorder import AudioRecorder
 
 
 # todo: microphone input lasts as long as user is speaking
@@ -19,27 +18,8 @@ class SpeechToText:
         )
 
     def _record_audio_to_file(self):
-        # todo: end when stop talking not at 5 secs
-
-        # Sampling frequency
-        freq = 44100
-
-        # Recording duration
-        duration = 5
-
-        # Start recorder with the given values
-        # of duration and sample frequency
-        print('Recording audio')
-        recording = sd.rec(int(duration * freq),
-                           samplerate=freq, channels=2)
-
-        # Record audio for the given number of seconds
-        sd.wait()
-        print('Stopped recording audio')
-
-        # This will convert the NumPy array to an audio
-        # file with the given sampling frequency
-        write(self.path, freq, recording)
+        a = AudioRecorder()
+        a.listen()
 
 
     def _load_audio_from_file(self) -> tuple[Tensor, int]:
@@ -90,5 +70,4 @@ class SpeechToText:
         return first_transcript
 
 
-# pipeline = SpeechToText()
-# pipeline.run()
+

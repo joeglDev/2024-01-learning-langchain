@@ -3,7 +3,6 @@ from langchain_community.document_loaders import AsyncHtmlLoader
 
 
 class Webscrapers:
-
     def extract_text_from(self, url: str) -> str:
         print(f"Fetching web content from {url}")
         loader = AsyncHtmlLoader([url])
